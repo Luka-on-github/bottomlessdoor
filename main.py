@@ -11,17 +11,6 @@ from pygame.locals import (
     QUIT,
 )
 
-
-
-class game:
-    loadingPos = (100, 600)
-    loadingAngle = 0
-    loadingRotations = 0
-    door = pygame.transform.scale(pygame.image.load("door.png"), (200, 200))
-    doorPos = [750, 500]
-    player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
-    loading = True
-
 class constant:
     timer = 0
     bg = (255, 255, 255)
@@ -33,6 +22,40 @@ class constant:
     mL = 0
     sL = 0
     kL = 0
+    clock = pygame.time.Clock()
+
+class game:
+    loadingPos = (100, 600)
+    loadingAngle = 0
+    loadingRotations = 0
+    door = pygame.transform.scale(pygame.image.load("door.png"), (200, 200))
+    doorPos = [750, 500]
+    player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+    loading = True
+    walkAnimation = 1
+    bgList = list(constant.bg)
+    newRoom = False
+    roomNumber = 1
+    def roomTrasition():
+        constant.screen.fill(constant.bg)
+        constant.bg = tuple(game.bgList)
+        if game.newRoom == True:
+            if game.bgList[1] < 255:
+                game.bgList[0] = game.bgList[0] + 1
+                game.bgList[1] = game.bgList[1] + 1
+                game.bgList[2] = game.bgList[2] + 1
+            else:
+                game.doorPos[0] = game.doorPos[0] + 300
+                game.newRoom = False
+                game.roomNumber = game.roomNumber + 1
+            
+        else:
+            if constant.bg[1] > 0:
+                game.bgList[0] = game.bgList[0] - 1
+                game.bgList[1] = game.bgList[1] - 1
+                game.bgList[2] = game.bgList[2] - 1
+            else:
+                game.newRoom = True
 
 class start:
     textShade = 0
@@ -50,58 +73,111 @@ def physicClock():
         constant.sL = 0
         constant.kL = constant.kL + 1
         print("Clock:", constant.kL)
-    if constant.kL == 4:
+    if constant.kL == 5:
         constant.kL = 0
         constant.timer = constant.timer + 1
 
 def draw_game(screen):
     keys = pygame.key.get_pressed()
     screen.fill(constant.bg)
+    if game.loading == True:
+        if game.loadingRotations <= 28:
+            pygame.draw.circle(screen, (0, 0, 0), game.loadingPos, 10)
+            game.loadingPos = (100 + 30 * math.cos(math.radians(game.loadingAngle)), 600 + 30 * math.sin(math.radians(game.loadingAngle)))
+            game.loadingAngle = (game.loadingAngle + 2) % 360
+        else:
+            game.loading = False
 
-    if game.loadingRotations <= 28:
-        pygame.draw.circle(screen, (0, 0, 0), game.loadingPos, 10)
-        game.loadingPos = (100 + 30 * math.cos(math.radians(game.loadingAngle)), 600 + 30 * math.sin(math.radians(game.loadingAngle)))
-        game.loadingAngle = (game.loadingAngle + 2) % 360
-    else:
-        game.loading = False
+        if game.loadingRotations == 25:
+            mixer.music.load("voice1.wav")
+            mixer.music.play(1)
 
-    if game.loadingRotations == 25:
-        mixer.music.load("voice1.wav")
-        mixer.music.play(1)
+        if game.loadingRotations == 26 or game.loadingRotations == 27:
+            subtitle1 = start.text1.render("How about this, you never know", True, (start.textShade, start.textShade, start.textShade))
+            subtitle2 = start.text1.render("what's on the other side of a door", True, (start.textShade, start.textShade, start.textShade))
+            screen.blit(subtitle1, (10, 100))
+            screen.blit(subtitle2, (10, 200))
 
-    if game.loadingRotations == 26 or game.loadingRotations == 27:
-        subtitle1 = start.text1.render("How about this, you never know", True, (start.textShade, start.textShade, start.textShade))
-        subtitle2 = start.text1.render("what's on the other side of a door", True, (start.textShade, start.textShade, start.textShade))
-        screen.blit(subtitle1, (10, 100))
-        screen.blit(subtitle2, (10, 200))
+        if game.loadingRotations == 19:
+            mixer.music.load("voice2.wav")
+            mixer.music.play(1)
 
-    if game.loadingRotations == 19:
-        mixer.music.load("voice2.wav")
-        mixer.music.play(1)
+        if game.loadingRotations == 20 or game.loadingRotations == 21:
+            subtitle3 = start.text1.render("The games not loading again...", True, (start.textShade, start.textShade, start.textShade))
+            screen.blit(subtitle3, (10, 100))
+        if game.loadingAngle == 2:
+            game.loadingRotations = game.loadingRotations + 1
 
-    if game.loadingRotations == 20 or game.loadingRotations == 21:
-        subtitle3 = start.text1.render("The games not loading again...", True, (start.textShade, start.textShade, start.textShade))
-        screen.blit(subtitle3, (10, 100))
-    if game.loadingAngle == 2:
-        game.loadingRotations = game.loadingRotations + 1
-
-    if game.loading == False:
+    elif game.loading == False:
         constant.timer = 0
+        mousePos = pygame.mouse.get_pos()
         screen.blit(game.player, (500, 350))
         screen.blit(game.door, tuple(game.doorPos))
+        print(mousePos)
+
+        if game.doorPos[0] >= 550 and game.doorPos[0] <= 650 and game.doorPos[1] >= 350 and game.doorPos[1] <= 500:
+            game.roomTrasition()
+
         if keys[K_LEFT]:
             game.doorPos[0] = game.doorPos[0] + 5
-        if keys[K_RIGHT]:
+            if constant.kL == 1:
+                if game.walkAnimation == 2:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight4.png"), (200, 200))
+                else:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight1.png"), (200, 200))
+            elif constant.kL == 2:
+                if game.walkAnimation == 2:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight5.png"), (200, 200))
+                else:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight2.png"), (200, 200))
+            elif constant.kL == 3:
+                if game.walkAnimation == 2:
+                    game.walkAnimation = 1
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight6.png"), (200, 200))
+            elif constant.kL == 4:
+                if game.walkAnimation == 1:
+                    game.walkAnimation = 2
+                    game.player = pygame.transform.scale(pygame.image.load("walkingRight3.png"), (200, 200))
+
+        elif keys[K_RIGHT]:
             game.doorPos[0] = game.doorPos[0] - 5
-            if constant.mL == 1:
-                game.player = pygame.transform.scale(pygame.image.load("walkingLeft1.png"), (200, 200))
-        if keys[K_UP]:
+            if constant.kL == 1:
+                if game.walkAnimation == 2:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft4.png"), (200, 200))
+                else:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft1.png"), (200, 200))
+            elif constant.kL == 2:
+                if game.walkAnimation == 2:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft5.png"), (200, 200))
+                else:
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft2.png"), (200, 200))
+            elif constant.kL == 3:
+                if game.walkAnimation == 2:
+                    game.walkAnimation = 1
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft6.png"), (200, 200))
+            elif constant.kL == 4:
+                if game.walkAnimation == 1:
+                    game.walkAnimation = 2
+                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft3.png"), (200, 200))
+
+        elif keys[K_UP]:
             game.doorPos[1] = game.doorPos[1] + 5
-        if keys[K_DOWN]:
+            game.player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+
+        elif keys[K_DOWN]:
             game.doorPos[1] = game.doorPos[1] - 5
-        if constant.timer <= 10:
-            subtitle3 = start.text1.render("Use the arrow keys to move", True, (start.textShade, start.textShade, start.textShade))
-            screen.blit(subtitle3, (100, 100))
+        else:
+            if constant.kL == 1:
+                game.player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+            elif random.randint(1, 150) == 2:
+                if constant.kL == 2:
+                    game.player = pygame.transform.scale(pygame.image.load("idle2.png"), (200, 200))
+                elif constant.kL == 3:
+                    game.player = pygame.transform.scale(pygame.image.load("idle3.png"), (200, 200))
+        if game.roomNumber == 1:
+            if constant.timer <= 50:
+                subtitle3 = start.text1.render("Use the arrow keys to move", True, (start.textShade, start.textShade, start.textShade))
+                screen.blit(subtitle3, (100, 100))
         
 
 
@@ -119,6 +195,7 @@ def draw_splash(screen):
 
 
 while True:
+    constant.clock.tick(120)
     physicClock()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
