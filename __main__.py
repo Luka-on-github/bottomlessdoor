@@ -36,6 +36,13 @@ class game:
     bgList = list(constant.bg)
     newRoom = False
     roomNumber = 1
+    roomSelection = [
+        "movingDoor",
+        "flies",
+        "window"
+        "",
+    ]
+
     def roomTrasition():
         constant.screen.fill(constant.bg)
         constant.bg = tuple(game.bgList)
@@ -45,7 +52,7 @@ class game:
                 game.bgList[1] = game.bgList[1] + 1
                 game.bgList[2] = game.bgList[2] + 1
             else:
-                game.doorPos[0] = game.doorPos[0] + 300
+                game.doorPos[0] = game.doorPos[0] + 600
                 game.newRoom = False
                 game.roomNumber = game.roomNumber + 1
             
