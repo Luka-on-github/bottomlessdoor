@@ -28,19 +28,23 @@ class game:
     loadingPos = (100, 600)
     loadingAngle = 0
     loadingRotations = 0
-    door = pygame.transform.scale(pygame.image.load("door.png"), (200, 200))
-    doorPos = [750, 500]
-    player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+    door = pygame.transform.scale(pygame.image.load("images/roomAssets/door.png"), (200, 200))
+    doorPos = [700, 350]
+    player = pygame.transform.scale(pygame.image.load("images/character/idle1.png"), (200, 200))
     loading = True
     walkAnimation = 1
     bgList = list(constant.bg)
     newRoom = False
     roomNumber = 1
+    currentRoom = ""
+    window = pygame.transform.scale(pygame.image.load("images/roomAssets/window.png"), (200, 200))
+    windowPos = [600, 150]
+
     roomSelection = [
-        "movingDoor",
+        "inverted",
         "flies",
         "window"
-        "",
+        "dark",
     ]
 
     def roomTrasition():
@@ -53,8 +57,10 @@ class game:
                 game.bgList[2] = game.bgList[2] + 1
             else:
                 game.doorPos[0] = game.doorPos[0] + 600
+                game.windowPos[0] = game.windowPos[0] + 600
                 game.newRoom = False
                 game.roomNumber = game.roomNumber + 1
+                game.currentRoom = random.choice(game.roomSelection)
             
         else:
             if constant.bg[1] > 0:
@@ -66,8 +72,8 @@ class game:
 
 class start:
     textShade = 0
-    text1 = pygame.font.Font("TTSupermolotNeue.ttf", 75)
-    pfp = pygame.transform.scale(pygame.image.load("pfp.jpeg"), (300, 300))
+    text1 = pygame.font.Font("other/TTSupermolotNeue.ttf", 75)
+    pfp = pygame.transform.scale(pygame.image.load("other/pfp.jpeg"), (300, 300))
 
 def physicClock():
     if constant.mL >= 0:
@@ -96,7 +102,7 @@ def draw_game(screen):
             game.loading = False
 
         if game.loadingRotations == 25:
-            mixer.music.load("voice1.wav")
+            mixer.music.load("other/voice1.wav")
             mixer.music.play(1)
 
         if game.loadingRotations == 26 or game.loadingRotations == 27:
@@ -106,7 +112,7 @@ def draw_game(screen):
             screen.blit(subtitle2, (10, 200))
 
         if game.loadingRotations == 19:
-            mixer.music.load("voice2.wav")
+            mixer.music.load("other/voice2.wav")
             mixer.music.play(1)
 
         if game.loadingRotations == 20 or game.loadingRotations == 21:
@@ -119,73 +125,96 @@ def draw_game(screen):
         constant.timer = 0
         mousePos = pygame.mouse.get_pos()
         screen.blit(game.player, (500, 350))
-        screen.blit(game.door, tuple(game.doorPos))
+        screen.blit(game.door, (game.doorPos[0] - 50, game.doorPos[1] + 100))
         print(mousePos)
 
-        if game.doorPos[0] >= 550 and game.doorPos[0] <= 650 and game.doorPos[1] >= 350 and game.doorPos[1] <= 500:
+        if game.doorPos[0] >= 550 and game.doorPos[0] <= 600 and game.doorPos[1] >= 250 and game.doorPos[1] <= 350:
             game.roomTrasition()
+        else:
+            if game.currentRoom is not "dark":
+                constant.bg = (255, 255, 255)
 
         if keys[K_LEFT]:
             game.doorPos[0] = game.doorPos[0] + 5
+            game.windowPos[0] = game.windowPos[0] + 5
             if constant.kL == 1:
                 if game.walkAnimation == 2:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight4.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight4.png"), (200, 200))
                 else:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight1.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight1.png"), (200, 200))
             elif constant.kL == 2:
                 if game.walkAnimation == 2:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight5.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight5.png"), (200, 200))
                 else:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight2.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight2.png"), (200, 200))
             elif constant.kL == 3:
                 if game.walkAnimation == 2:
                     game.walkAnimation = 1
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight6.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight6.png"), (200, 200))
             elif constant.kL == 4:
                 if game.walkAnimation == 1:
                     game.walkAnimation = 2
-                    game.player = pygame.transform.scale(pygame.image.load("walkingRight3.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingRight3.png"), (200, 200))
 
         elif keys[K_RIGHT]:
             game.doorPos[0] = game.doorPos[0] - 5
+            game.windowPos[0] = game.windowPos[0] - 5
             if constant.kL == 1:
                 if game.walkAnimation == 2:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft4.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft4.png"), (200, 200))
                 else:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft1.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft1.png"), (200, 200))
             elif constant.kL == 2:
                 if game.walkAnimation == 2:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft5.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft5.png"), (200, 200))
                 else:
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft2.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft2.png"), (200, 200))
             elif constant.kL == 3:
                 if game.walkAnimation == 2:
                     game.walkAnimation = 1
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft6.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft6.png"), (200, 200))
             elif constant.kL == 4:
                 if game.walkAnimation == 1:
                     game.walkAnimation = 2
-                    game.player = pygame.transform.scale(pygame.image.load("walkingLeft3.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/walkingLeft3.png"), (200, 200))
 
         elif keys[K_UP]:
             game.doorPos[1] = game.doorPos[1] + 5
-            game.player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+            game.windowPos[1] = game.windowPos[1] + 5
+            game.player = pygame.transform.scale(pygame.image.load("images/character/idle3.png"), (200, 200))
 
         elif keys[K_DOWN]:
             game.doorPos[1] = game.doorPos[1] - 5
+            game.windowPos[1] = game.windowPos[1] - 5
         else:
             if constant.kL == 1:
-                game.player = pygame.transform.scale(pygame.image.load("idle1.png"), (200, 200))
+                game.player = pygame.transform.scale(pygame.image.load("images/character/idle1.png"), (200, 200))
             elif random.randint(1, 150) == 2:
                 if constant.kL == 2:
-                    game.player = pygame.transform.scale(pygame.image.load("idle2.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/idle2.png"), (200, 200))
                 elif constant.kL == 3:
-                    game.player = pygame.transform.scale(pygame.image.load("idle3.png"), (200, 200))
+                    game.player = pygame.transform.scale(pygame.image.load("images/character/idle3.png"), (200, 200))
         if game.roomNumber == 1:
             if constant.timer <= 50:
                 subtitle3 = start.text1.render("Use the arrow keys to move", True, (start.textShade, start.textShade, start.textShade))
                 screen.blit(subtitle3, (100, 100))
-        
+        else:
+            if game.currentRoom == "inverted":
+                if constant.kL == 2 or constant.kL == 4:
+                    if keys[K_RIGHT]:
+                        game.doorPos[0] = game.doorPos[0] + 10
+                    if keys[K_LEFT]:
+                        game.doorPos[0] = game.doorPos[0] - 10
+
+            elif game.currentRoom == "dark":
+                screen.fill(0, 0, 0)
+
+            elif game.currentRoom == "window":
+                screen.blit(game.window, tuple(game.windowPos))
+                
+
+                
+
 
 
 def draw_splash(screen):
